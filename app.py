@@ -1,18 +1,48 @@
-from flask import Flask, render_template, url_for, request, redirect, flash
+from flask import Flask, render_template, request, redirect, flash
+from flask_sqlalchemy import SQLAlchemy
+import pandas as pd
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'  # Nécessaire pour utiliser flash messages
 
-# Données fictives pour les produits avec catégories
-products = [
-    {'id': 1, 'name': 'Produit 1', 'price': '10.00', 'image': 'images/product1.jpg', 'description': 'Description du produit 1', 'category': 'Informatique'},
-    {'id': 2, 'name': 'Produit 2', 'price': '20.00', 'image': 'images/product2.jpg', 'description': 'Description du produit 2', 'category': 'Téléphonie'},
-    {'id': 3, 'name': 'Produit 3', 'price': '30.00', 'image': 'images/product3.jpg', 'description': 'Description du produit 3', 'category': 'Électroménager'},
-    {'id': 4, 'name': 'Produit 4', 'price': '40.00', 'image': 'images/product4.jpg', 'description': 'Description du produit 4', 'category': 'Informatique'},
-    {'id': 5, 'name': 'Produit 5', 'price': '50.00', 'image': 'images/product5.jpg', 'description': 'Description du produit 5', 'category': 'Téléphonie'},
-    {'id': 6, 'name': 'Produit 6', 'price': '60.00', 'image': 'images/product6.jpg', 'description': 'Description du produit 6', 'category': 'Électroménager'},
-    {'id': 7, 'name': 'Produit 7', 'price': '70.00', 'image': 'images/product7.jpg', 'description': 'Description du produit 7', 'category': 'Informatique'}
-]
+# Configuration de la base de données SQLite
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///products.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+# Modèle de produit
+class Product(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    main_category = db.Column(db.String(100), nullable=False)
+    sub_category = db.Column(db.String(100), nullable=True)
+    image = db.Column(db.String(100), nullable=True)
+    link = db.Column(db.String(100), nullable=True)
+    ratings = db.Column(db.Float, nullable=True)
+    no_of_ratings = db.Column(db.Integer, nullable=True)
+    discount_price = db.Column(db.Float, nullable=True)
+    actual_price = db.Column(db.Float, nullable=True)
+
+# Créer la base de données et les tables
+db.create_all()
+
+# Lire le dataset CSV et remplir la base de données
+dataset = pd.read_csv('/home/osboxes/Desktop/test/data/products.csv')
+for index, row in dataset.iterrows():
+    product = Product(
+        name=row['name'],
+        main_category=row['main_category'],
+        sub_category=row['sub_category'],
+        image=row['image'],
+        link=row['link'],
+        ratings=row['ratings'],
+        no_of_ratings=row['no_of_ratings'],
+        discount_price=row['discount_price'],
+        actual_price=row['actual_price']
+    )
+    db.session.add(product)
+db.session.commit()
 
 # Panier
 cart = []
@@ -21,33 +51,35 @@ cart = []
 def index():
     category = request.args.get('category')
     search = request.args.get('search')
-    filtered_products = products
+    filtered_products = Product.query
 
     if category:
-        filtered_products = [product for product in products if product['category'] == category]
+        filtered_products = filtered_products.filter_by(main_category=category)
 
     if search:
-        filtered_products = [product for product in filtered_products if search.lower() in product['name'].lower()]
+        filtered_products = filtered_products.filter(Product.name.ilike(f'%{search}%'))
+
+    filtered_products = filtered_products.all()
 
     return render_template('index.html', products=filtered_products, selected_category=category, search_query=search, cart=cart)
 
 @app.route('/product/<int:product_id>')
 def product(product_id):
-    product = next((item for item in products if item["id"] == product_id), None)
+    product = Product.query.get_or_404(product_id)
     return render_template('product.html', product=product)
 
 @app.route('/add_to_cart/<int:product_id>')
 def add_to_cart(product_id):
-    product = next((item for item in products if item["id"] == product_id), None)
+    product = Product.query.get_or_404(product_id)
     if product:
         cart.append(product)
-        flash(f'{product["name"]} a été ajouté au panier.', 'success')
+        flash(f'{product.name} a été ajouté au panier.', 'success')
     return redirect('/')
 
 @app.route('/remove_from_cart/<int:product_id>')
 def remove_from_cart(product_id):
     global cart
-    cart = [item for item in cart if item['id'] != product_id]
+    cart = [item for item in cart if item.id != product_id]
     flash(f'Le produit a été retiré du panier.', 'danger')
     return redirect('/')
 
