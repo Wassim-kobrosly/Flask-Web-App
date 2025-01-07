@@ -36,3 +36,5 @@ MLOPS_Project/
 │   ├── Index.html            # Acceuil de tout les produits avec possibilté de filtrage,recherche et affichage des recommendations
 
 │   ├── Product.html          # Page pour chaque produit
+
+├── App.py                    # Script pour lancer le site web et ses fonctionalités
