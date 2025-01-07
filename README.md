@@ -5,7 +5,9 @@ Site Web crée avec flask
 
 -Filtrage des produit
 
--Detection d'interactions et des utilisateur et enregistrement dans des datasets
+-Detection d'interactions et des utilisateurs et enregistrement dans des datasets
+
+-affichage des recommendation dans la page d'acceuil
 
 
 
