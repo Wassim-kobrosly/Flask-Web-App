@@ -1,19 +1,36 @@
 # Flask-Web-App
  Plateforme de E-commerce 
 
-Site Web crée avec flask : 
+Site Web crée avec flask 
 
--index.html (acceuil de tout les produits avec possibilté de filtrage,recherche et recommendation a droite ps: quelques filtrage sont corrompu)
+-Filtrage des produit
+
+-Detection d'interactions et des utilisateur et enregistrement dans des datasets
 
 
--product.html(page pour chaque produit ps: il manque l'ajout de recommendation de produit similaire en bas) 
 
-Datasets :
+Prochaine etape : 
 
--products : Extraite depuis kaggle et ensuite netoyè (amazon products)
+!! l'ajout de recommendation de produit similaire en bas sur la page product 
 
--users : detectè a partir des cookies de session
+!! quelques filtrage sont corrompu dans index.html
 
--interactions: chaque interaction (viewed,purchased added to cart est enregistrè)
+et finalement hebergement avec orender
 
--predictions : les recommendation sont recu depuis le modele dans le projet mlops
+MLOPS_Project/
+
+├── Data/                     # Repertoire pour contenir les datasets
+
+│   ├── products.csv          # Extraite depuis kaggle et ensuite netoyè (amazon products)
+
+│   ├── users.csv             #  Detectè a partir des cookies de session
+
+│   ├── interactions.csv      # Chaque interaction (viewed,purchased added to cart) est enregistrè
+
+│   └── predictions.csv       # Les recommendation sont recu depuis le modele dans https://github.com/Wassim-kobrosly/MLOPS.git
+
+├── Templates/                # Convertir products.csv en fichier .db pour la rapidité des requettes
+
+│   ├── Index.html            # Acceuil de tout les produits avec possibilté de filtrage,recherche et affichage des recommendations
+
+│   ├── Product.html          # Page pour chaque produit
