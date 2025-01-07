@@ -13,7 +13,7 @@ Site Web crée avec flask
 
 Prochaine etape : 
 
-!! l'ajout de recommendation de produit similaire en bas sur la page product 
+!! l'ajout de recommendation de produits similaires en bas sur la page product 
 
 !! quelques filtrage sont corrompu dans index.html
 
